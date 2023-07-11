@@ -1,5 +1,3 @@
-import string
-
 import requests
 import json
 
@@ -9,7 +7,7 @@ DOMAIN = 'https://www.technodom.kz'
 URL = 'https://www.technodom.kz/catalog/'
 
 
-def get_catalogue_links(url: string) -> []:
+def get_catalogue_links(url: str) -> list[str]:
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -24,7 +22,7 @@ def get_catalogue_links(url: string) -> []:
     return fetched_urls
 
 
-def get_products_links(url: string) -> []:
+def get_products_links(url: str) -> list[str]:
     page = 1
     fetched_urls = []
     while True:
@@ -46,7 +44,7 @@ def get_products_links(url: string) -> []:
         page += 1
 
 
-def get_all_products(url: string) -> []:
+def get_all_products(url: str) -> list[dict]:
     catalogue_links = get_catalogue_links(url)
     items = []
     for link in catalogue_links:
