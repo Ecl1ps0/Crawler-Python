@@ -52,12 +52,12 @@ def get_products_links(url: str) -> list[str]:
 
 def get_all_products(url: str) -> list[dict]:
     catalogue_links = get_catalogue_links(url)
-    items = []
     for link in catalogue_links:
         print(link)
         try:
             response = requests.get(link)
             soup = BeautifulSoup(response.content, 'html.parser')
+            items = []
             item = {}
 
             span_tags = soup.find_all('span', itemprop='name')
@@ -79,14 +79,11 @@ def get_all_products(url: str) -> list[dict]:
             for item_link in item_links:
                 items.append({**item, 'item_link': item_link})
 
+            with open('links.json', 'a') as outfile:
+                json.dump(items, outfile, indent=6)
+
         except Exception as e:
             print("Error: ", str(e))
 
-    return items
 
-
-products = get_all_products(URL)
-
-with open("links.json", "w") as outfile:
-    json.dump(products, outfile, indent=6)
-
+get_all_products(URL)
