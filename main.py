@@ -72,6 +72,8 @@ def get_all_products(url: str) -> list[dict]:
     return items
 
 
+products = get_all_products(URL)
+
 with open("links.json", "w") as outfile:
-    json.dump(get_all_products(URL), outfile, indent=6)
+    json.dump(products, outfile, indent=6)
 
