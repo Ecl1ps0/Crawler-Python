@@ -1,10 +1,12 @@
 import requests
 import json
+import os
 
 from bs4 import BeautifulSoup
 
 DOMAIN = 'https://www.technodom.kz'
 URL = 'https://www.technodom.kz/catalog/'
+FILE_PATH = 'links.json'
 
 
 def get_catalogue_links(url: str) -> list[str]:
@@ -50,7 +52,7 @@ def get_products_links(url: str) -> list[str]:
             print("Error: ", str(e))
 
 
-def get_all_products(url: str) -> list[dict]:
+def get_all_products(url: str) -> None:
     catalogue_links = get_catalogue_links(url)
     for link in catalogue_links:
         print(link)
@@ -79,8 +81,17 @@ def get_all_products(url: str) -> list[dict]:
             for item_link in item_links:
                 items.append({**item, 'item_link': item_link})
 
-            with open('links.json', 'a') as outfile:
-                json.dump(items, outfile, indent=6)
+            if not os.path.exists(FILE_PATH):
+                with open(FILE_PATH, 'w') as outfile:
+                    json.dump(items, outfile, indent=6)
+            else:
+                with open(FILE_PATH, 'r') as outfile:
+                    data = json.load(outfile)
+
+                data.append(items)
+
+                with open(FILE_PATH, 'w') as outfile:
+                    json.dump(data, outfile, indent=6)
 
         except Exception as e:
             print("Error: ", str(e))
