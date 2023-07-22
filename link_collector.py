@@ -3,7 +3,7 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 
-logging.basicConfig(level=logging.ERROR, filename='logs.log', filemode='w')
+from config import logger
 
 
 class LinkCollector:
@@ -16,12 +16,12 @@ class LinkCollector:
             response = requests.get(self.url)
             soup = BeautifulSoup(response.content, 'html.parser')
         except Exception as e:
-            logging.error(str(e))
+            logger.error(str(e))
 
         try:
             li_tags = soup.find_all('li', attrs='catalog-page__subcategory')
         except AttributeError as e:
-            logging.error(str(e))
+            logger.error(str(e))
             li_tags = []
 
         fetched_urls = []
@@ -52,7 +52,7 @@ class LinkCollector:
                 ul_tags = soup.find('ul', attrs='category-page-list__list')
                 links = ul_tags.find_all('a')
             except AttributeError as e:
-                logging.error(str(e))
+                logger.error(str(e))
                 links = []
 
             for link in links:
