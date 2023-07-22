@@ -6,8 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from link_collector import LinkCollector
-
-logging.basicConfig(level=logging.ERROR, filename='logs.log', filemode='w')
+from config import logger
 
 
 class LinkHandler:
@@ -24,7 +23,7 @@ class LinkHandler:
                 response = requests.get(link)
                 soup = BeautifulSoup(response.content, 'html.parser')
             except Exception as e:
-                logging.error(str(e))
+                logger.error(str(e))
 
             items = []
             item = {}
@@ -54,7 +53,8 @@ class LinkHandler:
                 with open(self.file_path, 'r') as outfile:
                     data = json.load(outfile)
 
-                data.append(items)
+                for item in items:
+                    data.append(item)
 
                 with open(self.file_path, 'w') as outfile:
                     json.dump(data, outfile, indent=6)
