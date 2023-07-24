@@ -1,4 +1,5 @@
 import logging
+from typing import Generator
 
 import requests
 from bs4 import BeautifulSoup
@@ -11,7 +12,7 @@ class LinkCollector:
         self.url = url
         self.domain = 'https://www.technodom.kz'
 
-    def get_catalogue_links(self) -> list[str]:
+    def get_catalogue_links(self) -> Generator[str, None, None]:
         link_collector_logger.info("Start collecting catalogue links")
 
         try:
@@ -29,22 +30,18 @@ class LinkCollector:
             link_collector_logger.warning("li_tags variable has been changed to empty list")
             li_tags = []
 
-        fetched_urls = []
         for li in li_tags:
             a = li.find('a')
             href = a.get('href')
             link_collector_logger.info(f"Current link: {self.domain + href}")
-            fetched_urls.append(self.domain + href)
+            yield self.domain + href
 
         link_collector_logger.info("End getting catalogue links")
 
-        return fetched_urls
-
-    def get_products_links(self, page_link: str) -> list[str]:
+    def get_products_links(self, page_link: str) -> Generator[str, None, None]:
         link_collector_logger.info("Start collecting items' links")
 
         page = 1
-        fetched_urls = []
         while True:
             page_url = page_link + f'?page={page}'
             link_collector_logger.info(f"Current page link: {page_url}")
@@ -57,7 +54,7 @@ class LinkCollector:
 
             if len(soup.find_all('a', attrs='category-page-list__item-link')) == 0:
                 link_collector_logger.info(f"End collecting items' links")
-                return fetched_urls
+                return
 
             try:
                 ul_tags = soup.find('ul', attrs='category-page-list__list')
@@ -68,6 +65,6 @@ class LinkCollector:
 
             for link in links:
                 href = link.get('href')
-                fetched_urls.append(self.domain + href)
+                yield self.domain + href
 
             page += 1

@@ -16,8 +16,7 @@ class LinkHandler:
     def get_all_products(self) -> None:
         link_handler_logger.info("Start forming list of items ot JSON format")
 
-        catalogue_links = self.collector.get_catalogue_links()
-        for link in catalogue_links:
+        for link in self.collector.get_catalogue_links():
             link_handler_logger.info(f"Current link: {link}")
 
             try:
@@ -39,12 +38,7 @@ class LinkHandler:
             elif len(span_tags) == 2:
                 item['category'] = span_tags[1].text
 
-            item_links = self.collector.get_products_links(link)
-
-            if not item_links:
-                continue
-
-            for item_link in item_links:
+            for item_link in self.collector.get_products_links(link):
                 items.append({**item, 'item_link': item_link})
 
             if not os.path.exists(self.file_path):
