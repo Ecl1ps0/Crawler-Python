@@ -1,12 +1,11 @@
 import json
-import logging
 import os
 
 import requests
 from bs4 import BeautifulSoup
 
 from link_collector import LinkCollector
-from config import logger
+from config import link_handler_logger
 
 
 class LinkHandler:
@@ -15,15 +14,17 @@ class LinkHandler:
         self.file_path = file_path
 
     def get_all_products(self) -> None:
+        link_handler_logger.info("Start forming list of items ot JSON format")
+
         catalogue_links = self.collector.get_catalogue_links()
         for link in catalogue_links:
-            print(link)
+            link_handler_logger.info(f"Current link: {link}")
 
             try:
                 response = requests.get(link)
                 soup = BeautifulSoup(response.content, 'html.parser')
             except Exception as e:
-                logger.error(str(e))
+                link_handler_logger.error(str(e))
 
             items = []
             item = {}
@@ -58,3 +59,5 @@ class LinkHandler:
 
                 with open(self.file_path, 'w') as outfile:
                     json.dump(data, outfile, indent=6)
+
+        link_handler_logger.info("End forming list of items ot JSON format")

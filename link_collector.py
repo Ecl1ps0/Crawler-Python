@@ -3,7 +3,7 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 
-from config import logger
+from config import link_collector_logger
 
 
 class LinkCollector:
@@ -12,32 +12,42 @@ class LinkCollector:
         self.domain = 'https://www.technodom.kz'
 
     def get_catalogue_links(self) -> list[str]:
+        link_collector_logger.info("Start collecting catalogue links")
+
         try:
             response = requests.get(self.url)
             soup = BeautifulSoup(response.content, 'html.parser')
         except Exception as e:
-            logger.error(str(e))
+            link_collector_logger.error(str(e))
+
+        link_collector_logger.info(f"Start link: {self.url}")
 
         try:
             li_tags = soup.find_all('li', attrs='catalog-page__subcategory')
         except AttributeError as e:
-            logger.error(str(e))
+            link_collector_logger.error(str(e))
+            link_collector_logger.warning("li_tags variable has been changed to empty list")
             li_tags = []
 
         fetched_urls = []
         for li in li_tags:
             a = li.find('a')
             href = a.get('href')
+            link_collector_logger.info(f"Current link: {self.domain + href}")
             fetched_urls.append(self.domain + href)
+
+        link_collector_logger.info("End getting catalogue links")
 
         return fetched_urls
 
     def get_products_links(self, page_link: str) -> list[str]:
+        link_collector_logger.info("Start collecting items' links")
+
         page = 1
         fetched_urls = []
         while True:
             page_url = page_link + f'?page={page}'
-            print(page_url)
+            link_collector_logger.info(f"Current page link: {page_url}")
 
             try:
                 response = requests.get(page_url)
@@ -46,13 +56,14 @@ class LinkCollector:
                 logging.error(str(e))
 
             if len(soup.find_all('a', attrs='category-page-list__item-link')) == 0:
+                link_collector_logger.info(f"End collecting items' links")
                 return fetched_urls
 
             try:
                 ul_tags = soup.find('ul', attrs='category-page-list__list')
                 links = ul_tags.find_all('a')
             except AttributeError as e:
-                logger.error(str(e))
+                link_collector_logger.error(str(e))
                 links = []
 
             for link in links:
